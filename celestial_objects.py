@@ -12,9 +12,10 @@ class CelestialObject:
         self.n = N
         self.m = mass
         self.max_ball = 2000
+
         self.ball_num = ti.field(dtype=ti.i32, shape=())
-        self.black_hole_mass=ti.field(dtype=ti.i32, shape=())
-        self.black_hole_mass=self.m
+        self.mass=ti.field(dtype=ti.i32, shape=())
+        self.mass=self.m
         self.pos = ti.Vector.field(2, ti.f32, shape=self.max_ball)
         self.vel = ti.Vector.field(2, ti.f32, shape=self.max_ball)
         self.force = ti.Vector.field(2, ti.f32, shape=self.max_ball)
@@ -44,20 +45,32 @@ class CelestialObject:
                 self.vel[i] = ti.Vector([-offset_dir[1], offset_dir[0]]) * init_speed
 
     @ti.kernel
-    def computeForce(self):
+    def computeForce(self, stars: ti.template(), blackhole: ti.template()):
         self.clearForce()
+        G = 1.0
         for i in range(self.ball_num[None]):
             p = self.pos[i]
+
             for j in range(self.ball_num[None]):
-                if j != i:
+                if i != j:
                     diff = self.pos[j] - p
                     r = diff.norm(1e-2)
-                    self.force[i] += self.G * self.m * self.m * diff / r ** 3
+                    self.force[i] += G * self.mass * self.mass * diff / r ** 3
+
+            for j in range(stars.ball_num[None]):
+                diff = stars.Pos()[j] - p
+                r = diff.norm(1e-2)
+                self.force[i] += G * self.mass * stars.mass * diff / r ** 3
+            
+            for j in range(blackhole.ball_num[None]):
+                diff = blackhole.Pos()[j] - p
+                r = diff.norm(1e-2)
+                self.force[i] += G * self.mass * blackhole.mass * diff / r ** 3 
 
     @ti.kernel
     def update(self, h: ti.f32):
         for i in self.vel:
-            self.vel[i] += h * self.force[i] / self.m
+            self.vel[i] += h * self.force[i] / self.mass
             self.pos[i] += h * self.vel[i]
 
     @ti.kernel
@@ -100,26 +113,7 @@ class Planet(CelestialObject):
     def generateThetaAndR(pi, i, n):
         theta = 2 * pi * ti.random()  # theta \in (0, 2PI)
         r = (ti.sqrt(ti.random()) * 0.4 + 0.6)  # r \in (0.6,1)    
-        return theta, r
-
-    @ti.kernel
-    def computeForce(self, stars: ti.template()):
-        self.clearForce()
-        G = 1.0
-        for i in range(self.ball_num[None]):
-            p = self.pos[i]
-
-            for j in range(self.ball_num[None]):
-                if i != j:
-                    diff = self.pos[j] - p
-                    r = diff.norm(1e-2)
-                    self.force[i] += G * self.m * self.m * diff / r ** 3
-
-            for j in range(stars.ball_num[None]):
-                diff = stars.Pos()[j] - p
-                r = diff.norm(1e-2)
-                self.force[i] += G * self.m * stars.Mass() * diff / r ** 3
-
+        return theta, r            
 
 @ti.data_oriented
 class Black_hole(CelestialObject):
@@ -136,7 +130,23 @@ class Black_hole(CelestialObject):
 
     @ti.kernel
     def update_black_hole(self):
-        self.black_hole_mass+=1000000
+        self.mass+=1000000
+
+    @ti.kernel
+    def blackhole_absorb(self, stars: ti.template(), planets: ti.template()):
+        for i in range(self.ball_num[None]):
+            p = self.pos[i] 
+            for j in range(planets.ball_num[None]):
+                diff = planets.pos[j] - p
+                r = diff.norm()
+                if r < 0.1:
+                    planets.vel[j]=ti.Vector([0, 0])
+            for j in range(stars.ball_num[None]):
+                diff = stars.pos[j] - p
+                r = diff.norm()
+                if r < 0.1:
+                    stars.vel[j]=ti.Vector([0, 0])
+                        
         
         
 

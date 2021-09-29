@@ -15,7 +15,7 @@ if __name__ == "__main__":
     planets = Planet(N=1000, mass=1)
     planets.initialize(0.5, 0.5, 0.4, 10)
     Blackhole=Black_hole(N=1, mass=10000)
-    Blackhole.initialize(0.5, 0.5, 0.2, 0)
+    
 
     # GUI
     my_gui = ti.GUI("Galaxy", (800, 800))
@@ -41,11 +41,14 @@ if __name__ == "__main__":
             elif e.key == ti.GUI.RMB:
                 x, y = e.pos
                 planets.add(x, y)
+            elif e.key == 'b':
+                Blackhole.initialize(0.5, 0.5, 0.2, 10)
 
 
         if not paused:
-            stars.computeForce()
-            planets.computeForce(stars)
+            stars.computeForce(planets, Blackhole)
+            planets.computeForce(stars, Blackhole)
+            Blackhole.blackhole_absorb(stars, planets)
             # Blackhole.update_black_hole()
             for celestial_obj in (stars, planets):
                 celestial_obj.update(h)
