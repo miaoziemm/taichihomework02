@@ -9,13 +9,15 @@ if __name__ == "__main__":
     paused = False
     export_images = False
     freeze=True
+    k=1
+    k_max=100
 
     # stars and planets
     stars = Star(N=2, mass=1000)
     stars.initialize(0.5, 0.5, 0.2, 10)
     planets = Planet(N=2000, mass=1)
     planets.initialize(0.5, 0.5, 0.4, 10)
-    Blackhole=Black_hole(N=1, mass=10000)
+    Blackhole=Black_hole(N=1, mass=100000)
     
 
     # GUI
@@ -46,21 +48,21 @@ if __name__ == "__main__":
                 Blackhole.initialize(0.5, 0.5, 0.2, 10)
             elif e.key == 'f':
                 freeze=not freeze
+
                 
 
         if not paused:
             stars.computeForce(planets, Blackhole)
             planets.computeForce(stars, Blackhole)
             Blackhole.blackhole_absorb(stars, planets)
-            # Blackhole.update_black_hole()
-            for celestial_obj in (stars, planets):
-                celestial_obj.update(h)
-            i += 1
             if not freeze:
                 stars.freeze()
                 planets.freeze()
                 Blackhole.freeze()
-            
+            # Blackhole.update_black_hole()
+            for celestial_obj in (stars, planets):
+                celestial_obj.update(h)
+            i += 1
 
         stars.display(my_gui, radius=10, color=0xffd500)
         planets.display(my_gui)

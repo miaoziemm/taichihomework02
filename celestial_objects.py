@@ -82,7 +82,7 @@ class CelestialObject:
     def freeze(self):
         self.clearForce()
         for i in range(self.ball_num[None]):
-            self.vel[i]*=0.2
+            self.vel[i]=self.vel[i]*0.95
 
     def Pos(self):
         return self.pos
@@ -145,12 +145,12 @@ class Black_hole(CelestialObject):
             for j in range(planets.ball_num[None]):
                 diff = planets.pos[j] - p
                 r = diff.norm()
-                if r < 0.1:
+                if r < 0.05:
                     planets.vel[j]=ti.Vector([0, 0])
             for j in range(stars.ball_num[None]):
                 diff = stars.pos[j] - p
                 r = diff.norm()
-                if r < 0.1:
+                if r < 0.05:
                     stars.vel[j]=ti.Vector([0, 0])
                         
         
