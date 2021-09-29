@@ -11,7 +11,7 @@ class CelestialObject:
         # celestial object related fields
         self.n = N
         self.m = mass
-        self.max_ball = 2000
+        self.max_ball = 5000
 
         self.ball_num = ti.field(dtype=ti.i32, shape=())
         self.mass=ti.field(dtype=ti.i32, shape=())
@@ -77,6 +77,12 @@ class CelestialObject:
     def add(self, x: ti.f32, y: ti.f32):
         self.pos[self.ball_num[None]] = ti.Vector([x, y])
         self.ball_num[None] += 1
+
+    @ti.kernel
+    def freeze(self):
+        self.clearForce()
+        for i in range(self.ball_num[None]):
+            self.vel[i]*=0.2
 
     def Pos(self):
         return self.pos
