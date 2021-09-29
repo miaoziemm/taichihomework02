@@ -1,9 +1,9 @@
 import taichi as ti
-from celestial_objects import Star, Planet
+from celestial_objects import Star, Planet, Black_hole
 
 if __name__ == "__main__":
 
-    ti.init(arch=ti.cuda)
+    ti.init(arch=ti.cpu)
 
     # control
     paused = False
@@ -14,6 +14,8 @@ if __name__ == "__main__":
     stars.initialize(0.5, 0.5, 0.2, 10)
     planets = Planet(N=1000, mass=1)
     planets.initialize(0.5, 0.5, 0.4, 10)
+    Blackhole=Black_hole(N=1, mass=10000)
+    Blackhole.initialize(0.5, 0.5, 0.2, 0)
 
     # GUI
     my_gui = ti.GUI("Galaxy", (800, 800))
@@ -44,12 +46,14 @@ if __name__ == "__main__":
         if not paused:
             stars.computeForce()
             planets.computeForce(stars)
+            # Blackhole.update_black_hole()
             for celestial_obj in (stars, planets):
                 celestial_obj.update(h)
             i += 1
 
         stars.display(my_gui, radius=10, color=0xffd500)
         planets.display(my_gui)
+        Blackhole.display(my_gui, radius=15, color=0xff00ff)
         if export_images:
             my_gui.show(f"images\output_{i:05}.png")
         else:

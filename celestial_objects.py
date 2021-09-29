@@ -13,6 +13,8 @@ class CelestialObject:
         self.m = mass
         self.max_ball = 2000
         self.ball_num = ti.field(dtype=ti.i32, shape=())
+        self.black_hole_mass=ti.field(dtype=ti.i32, shape=())
+        self.black_hole_mass=self.m
         self.pos = ti.Vector.field(2, ti.f32, shape=self.max_ball)
         self.vel = ti.Vector.field(2, ti.f32, shape=self.max_ball)
         self.force = ti.Vector.field(2, ti.f32, shape=self.max_ball)
@@ -113,7 +115,32 @@ class Planet(CelestialObject):
                     r = diff.norm(1e-2)
                     self.force[i] += G * self.m * self.m * diff / r ** 3
 
-            for j in range(stars.Number()):
+            for j in range(stars.ball_num[None]):
                 diff = stars.Pos()[j] - p
                 r = diff.norm(1e-2)
                 self.force[i] += G * self.m * stars.Mass() * diff / r ** 3
+
+
+@ti.data_oriented
+class Black_hole(CelestialObject):
+    def __init__(self, N, mass) -> None:
+        super().__init__(N, mass)
+        pass
+
+    @staticmethod
+    @ti.func
+    def generateThetaAndR(pi, i, n):
+        theta = 2 * pi * ti.random()  # theta \in (0, 2PI)
+        r = (ti.sqrt(ti.random()) * 0.4 + 0.6)  # r \in (0.6,1)    
+        return theta, r
+
+    @ti.kernel
+    def update_black_hole(self):
+        self.black_hole_mass+=1000000
+        
+        
+
+    
+    
+        
+
