@@ -6,15 +6,15 @@
 ## 成功效果展示
 鼠标左键点击增加恒星，右键点击增加行星。
 
-![LRMB](./image/LRMB.gif)
+![LRMB](./images/LRMB.gif)
 
 按b在窗口中心添加一个黑洞。（因为不太了解黑洞的物理描述方法，我就直接在中间添加了一个质量非常大的星体，并且规定这个星体不会移动，而且当其他星体靠近时会产生一个吸收的效果。QAQ）
 
-![BlackHole](./image/Blackhole.gif)
+![BlackHole](./images/Blackhole.gif)
 
 按f使窗口内的星体“冻结”即在很短时间内速度衰减到一个很小的值，本来是想做一个类似子弹时间的效果，但是子弹时间内可能还需要考虑动量守恒，于是就先做了一个冻结的简单效果。
 
-![freeze](./image/freeze.gif)
+![freeze](./images/freeze.gif)
 
 ## 整体结构（Optional）
 
